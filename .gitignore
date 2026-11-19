@@ -4,8 +4,6 @@ node_modules/
 .pnp.js
 
 # Env / secrets
-.env
-.env.*
 !.env.example
 *.pem
 secrets/
@@ -29,8 +27,8 @@ prisma/*.db-journal
 npm-debug.log*
 .DS_Store
 .idea/
-.vscode/
 *.swp
 
 # Deploy
 .vercel
+config.bat
