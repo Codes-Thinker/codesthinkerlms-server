@@ -1,0 +1,38 @@
+# When this server repo updates (CI sync or manual push) → restart API on EC2.
+# Secrets on Codes-Thinker/codesthinkerlms-server:
+#   EC2_HOST, EC2_USER, EC2_SSH_KEY
+# Optional: EC2_APP_DIR, EC2_PORT
+
+name: Deploy EC2
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-ec2-server-repo
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          APP_DIR: ${{ secrets.EC2_APP_DIR }}
+          APP_PORT: ${{ secrets.EC2_PORT }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: APP_DIR,APP_PORT
+          script_stop: true
+          command_timeout: 15m
+          script: |
+            set -euo pipefail
+            DIR="${APP_DIR:-$HOME/codesthinkerlms-server}"
+            export PORT="${APP_PORT:-3000}"
+            cd "$DIR"
+            bash scripts/deploy-ec2.sh
